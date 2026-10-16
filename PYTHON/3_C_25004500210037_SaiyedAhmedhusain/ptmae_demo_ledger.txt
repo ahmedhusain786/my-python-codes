@@ -1,0 +1,2 @@
+2026-10-16T23:02:38; accepted; account=Acc101; type=SAVINGS; balance=520000.00
+2026-10-16T23:02:38; accepted; account=Acc102; type=CURRENT; balance=950.00

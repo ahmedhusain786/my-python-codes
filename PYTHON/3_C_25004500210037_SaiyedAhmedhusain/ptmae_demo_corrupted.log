@@ -1,0 +1,2 @@
+input line 2; rejected; account ID not found in database; update=('Missing9', 'SAVINGS', 10)
+input line 4; rejected; new balance is not numeric; update=('Acc103', 'CREDIT', 'not-a-number')
