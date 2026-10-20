@@ -23,43 +23,43 @@ Module 1 — State Control Engine & Trajectory Guards
 
 Role: Continue as a senior Python developer mentoring a BSc IT Semester 3 student. Use the SRS analysis and project blueprint already established in this conversation.
 
-**Objective:** Implement and verify Module 1 of the Pure Python Transactional Micro-Banking & Audit Engine (PTMAE), covering the State Control Engine and Trajectory Guards.
+Objective: Implement and verify Module 1 of the Pure Python Transactional Micro-Banking & Audit Engine (PTMAE), covering the State Control Engine and Trajectory Guards.
 
-**Requirements:**
+Requirements:
 1. Implement the required nested interactive `while` loops, continuing after valid and invalid commands and exiting only on the explicit exit command.
 2. Implement the required compound-interest and penalty calculations using the arithmetic operators and loop constructs permitted by the SRS.
 3. Implement trajectory guards that iterate through a transaction sequence and stop early when the safety-threshold or termination condition is met, using the required short-circuit `and`/`or` behavior.
 4. Include clear function and variable names, appropriate docstrings, understandable user messages, and testable function boundaries.
 5. Provide test cases covering normal calculations, invalid commands, exit behavior, and both trajectory-guard termination conditions.
 
-**Constraints:**
+Constraints:
 - Follow the SRS and the approved blueprint exactly.
 - Respect all import restrictions and prohibited built-ins or shortcuts.
 - Do not implement Modules 2–5, integration, or `Documentation.md`.
 - Do not claim tests passed unless you actually execute them. If execution is unavailable, provide reproducible manual test steps and expected results.
 - Keep the code appropriate for the student's current Python level.
 
-**Deliverables:**
+Deliverables:
 1. A brief explanation of the module's design.
 2. Complete, clearly labelled Module 1 code, ready to incorporate into the eventual `main.py`.
 3. Test cases with inputs and expected outputs.
 4. An SRS compliance checklist for this module.
 5. A short interface checkpoint recording the functions, parameters, return values, and assumptions that later modules must preserve.
 
-# Module 2 — Native Log Parser & Closure Mechanics
+ Module 2 — Native Log Parser & Closure Mechanics
 
-**Role:** Continue as a senior Python developer mentoring a BSc IT Semester 3 student. Use the uploaded SRS, approved project blueprint, and completed Module 1 from this conversation.
+Role: Continue as a senior Python developer mentoring a BSc IT Semester 3 student. Use the uploaded SRS, approved project blueprint, and completed Module 1 from this conversation.
 
-**Objective:** Implement and verify Module 2, covering manual log parsing, closure-based audit filtering, and lambda late-binding protection.
+Objective:Implement and verify Module 2, covering manual log parsing, closure-based audit filtering, and lambda late-binding protection.
 
-**Requirements:**
+Requirements:
 
 1. Implement `parse_raw_log_line(line, delimiter=",", quote_char='"')` using manual character-by-character scanning, index tracking, and state flags. Support quoted fields, delimiters inside quoted fields, escaped quotes (`""`), empty fields, and trailing delimiters.
 2. Implement `create_audit_filter(threshold)` as a closure that uses `nonlocal` to maintain its own persistent validation count. Ensure separate closures maintain independent counts.
 3. Create a list of filtering lambdas inside a loop. Use a default parameter such as `k=k` to prevent late-binding errors and ensure each lambda applies its intended positional criterion.
 4. Add meaningful docstrings, clear error handling where required, and focused test cases for normal inputs, edge cases, and invalid or malformed records.
 
-**Constraints:**
+Constraints:
 - Follow the SRS and approved blueprint exactly.
 - Do not use `str.split()` or `str.replace()` in the manual parser.
 - Respect all import restrictions and other prohibited shortcuts.
@@ -67,22 +67,22 @@ Role: Continue as a senior Python developer mentoring a BSc IT Semester 3 studen
 - Do not implement Modules 3–5, integrate the entire project, or create `Documentation.md` yet.
 - Do not claim tests passed unless they have actually been executed.
 
-**Deliverables:**
+Deliverables:
 1. A brief explanation of the parser and closure design.
 2. Complete, clearly labelled Module 2 code ready for eventual inclusion in `main.py`.
 3. Test cases with expected outputs, including quoted delimiters, escaped quotes, empty fields, trailing delimiters, independent closure counts, and lambda late-binding behavior.
 4. An SRS compliance checklist.
 5. An interface checkpoint documenting function signatures, inputs, outputs, assumptions, and dependencies for later integration.
 
-**Stopping condition:** Implement and review Module 2 only. Identify unresolved ambiguities instead of silently inventing behavior. Then wait for my approval before proceeding to next Prompt — Module 3: Data Inversion & In-Place Processing.
+Stopping condition: Implement and review Module 2 only. Identify unresolved ambiguities instead of silently inventing behavior. Then wait for my approval before proceeding to next Prompt — Module 3: Data Inversion & In-Place Processing.
 
 Module 3 — Data Inversion & In-Place Processing
 
-**Role:** Continue as a senior Python developer mentoring a BSc IT Semester 3 student. Use the uploaded SRS, approved project blueprint, and completed Modules 1 and 2 from this conversation.
+Role: Continue as a senior Python developer mentoring a BSc IT Semester 3 student. Use the uploaded SRS, approved project blueprint, and completed Modules 1 and 2 from this conversation.
 
-**Objective:** Implement and verify Module 3 of the PTMAE project, focusing on reverse indexing and in-place transaction queue cleaning.
+Objective:Implement and verify Module 3 of the PTMAE project, focusing on reverse indexing and in-place transaction queue cleaning.
 
-**Requirements:**
+Requirements:
 
 1. Use the exact `raw_db` sample structure specified in the SRS. Build a reverse index mapping each service tag to alphabetically sorted, unique `(Account_ID, Branch_ID)` tuples, using a dictionary comprehension or a single nested comprehension pipeline as required.
 2. Implement `clean_transaction_queue(data_list)` to mutate the original list rather than replace it. Handle the heterogeneous elements specified in the SRS:
@@ -93,7 +93,7 @@ Module 3 — Data Inversion & In-Place Processing
 3. Preserve the original top-level list object's identity and follow the SRS's auxiliary-memory restriction.
 4. Include docstrings and clear explanations of the data-processing logic.
 
-**Constraints:**
+Constraints:
 - Follow the SRS and approved blueprint exactly.
 - Do not rebind `data_list` to a newly created top-level list.
 - Perform duplicate removal by scanning and deleting from the list by index, not by building a separate collection.
@@ -103,7 +103,7 @@ Module 3 — Data Inversion & In-Place Processing
 - Do not implement Module 4 or Module 5, integrate the entire project, or create `Documentation.md`.
 - Do not claim tests passed unless they have actually been executed.
 
-**Deliverables:**
+Deliverables:
 1. A brief explanation of the reverse-index algorithm and queue-cleaning strategy.
 2. Complete, clearly labelled Module 3 code ready for eventual inclusion in `main.py`.
 3. Test cases with expected results for reverse-index ordering, duplicate removal, tuple conversion, set filtering, descending sorting, and original-list identity.
@@ -115,11 +115,11 @@ Module 3 — Data Inversion & In-Place Processing
 
 Module 4 — Transactional File Modifier & Error Logger
 
-**Role:** Continue as a senior Python developer mentoring a BSc IT Semester 3 student. Use the uploaded SRS, approved project blueprint, and completed Modules 1–3 from this conversation.
+Role: Continue as a senior Python developer mentoring a BSc IT Semester 3 student. Use the uploaded SRS, approved project blueprint, and completed Modules 1–3 from this conversation.
 
-**Objective:** Implement and verify Module 4, covering custom exceptions, safe account-file updates, transaction logging, and error isolation.
+Objective: Implement and verify Module 4, covering custom exceptions, safe account-file updates, transaction logging, and error isolation.
 
-**Requirements:**
+Requirements:
 
 1. Implement `BaseSystemError(Exception)` and the required subclasses: `CorruptedRecordError`, `OutOfBoundsError`, and `InsufficientBalanceError`. Use them consistently with the SRS.
 2. Process `accounts.db` as UTF-8 text containing one account record per line. Validate record structure, account type, and numeric balance before accepting a record.
@@ -128,7 +128,7 @@ Module 4 — Transactional File Modifier & Error Logger
 5. Append invalid-record details and line numbers to `corrupted.log`. Append validated transaction updates to `ledger.txt`.
 6. Report processed and rejected record counts on every run, including when errors occur. Ensure files are closed safely.
 
-**Constraints:**
+Constraints:
 - Follow the SRS and approved blueprint exactly.
 - Respect all import restrictions and prohibited shortcuts.
 - Do not load the entire file into memory or replace the original file through `"w"` mode.
@@ -138,7 +138,7 @@ Module 4 — Transactional File Modifier & Error Logger
 - Do not claim tests passed unless they have actually been executed.
 - If Python text-mode file-positioning rules or another SRS requirement create an implementation ambiguity, explain the issue and propose an SRS-compatible approach rather than silently violating a restriction.
 
-**Deliverables:**
+Deliverables:
 1. A brief explanation of the exception hierarchy and file-update algorithm.
 2. Complete, clearly labelled Module 4 code ready for eventual inclusion in `main.py`.
 3. Test cases covering valid records, malformed records, invalid account types, invalid balances, update lengths that increase and decrease, insufficient balance, logging, and failure isolation.
@@ -146,15 +146,15 @@ Module 4 — Transactional File Modifier & Error Logger
 5. An SRS compliance checklist.
 6. An interface checkpoint documenting exception classes, function signatures, file formats, and integration dependencies.
 
-**Stopping condition:** Implement and review Module 4 only. Identify unresolved technical issues honestly, then wait for my approval before proceeding to next Module 5: Object-Oriented Polymorphic Engine.
+Stopping condition: Implement and review Module 4 only. Identify unresolved technical issues honestly, then wait for my approval before proceeding to next Module 5: Object-Oriented Polymorphic Engine.
 
  Module 5 — Object-Oriented Polymorphic Engine
 
-**Role:** Continue as a senior Python developer mentoring a BSc IT Semester 3 student. Use the uploaded SRS, approved project blueprint, and completed Modules 1–4 from this conversation.
+Role: Continue as a senior Python developer mentoring a BSc IT Semester 3 student. Use the uploaded SRS, approved project blueprint, and completed Modules 1–4 from this conversation.
 
-**Objective:** Implement and verify Module 5, covering account encapsulation, inheritance, polymorphism, settlement rules, and batch transaction processing.
+Objective:Implement and verify Module 5, covering account encapsulation, inheritance, polymorphism, settlement rules, and batch transaction processing.
 
-**Requirements:**
+Requirements:
 
 1. Implement the base `Account` class with private `__balance`, protected `_account_id`, and class attribute `total_accounts`. Provide public getters and setters with appropriate validation and exceptions.
 2. Implement `SavingsAccount`, `CurrentAccount`, and `CreditAccount` as subclasses using `super().__init__()` and without hardcoding the base class name in subclass constructors.
@@ -166,7 +166,7 @@ Module 4 — Transactional File Modifier & Error Logger
 5. Implement `execute_batch_settlement(account_list, transaction_amount)` to process mixed account types polymorphically. Handle each account's failure independently so one unsuccessful settlement does not stop the batch.
 6. Include docstrings, clear validation messages, and focused tests for inheritance, encapsulation, valid settlements, boundary conditions, rejected settlements, and mixed-account batches.
 
-**Constraints:**
+Constraints:
 - Follow the SRS and approved blueprint exactly.
 - Reuse the custom exceptions from Module 4; do not define conflicting duplicates.
 - Preserve all approved interfaces from Modules 1–4.
@@ -175,35 +175,35 @@ Module 4 — Transactional File Modifier & Error Logger
 - Do not integrate the complete project or create `Documentation.md` yet.
 - Do not claim tests passed unless they have actually been executed.
 
-**Deliverables:**
+Deliverables:
 1. A brief explanation of the class hierarchy and settlement design.
 2. Complete, clearly labelled Module 5 code ready for inclusion in the final `main.py`.
 3. Test cases with expected outcomes for all three account types and batch error isolation.
 4. An SRS compliance checklist.
 5. An integration checkpoint listing class constructors, attributes, methods, exception dependencies, and unresolved assumptions.
 
-**Stopping condition:** Implement and review Module 5 only. Wait for my approval before proceeding to next 7 — Integration and Full-System Testing.
+Stopping condition: Implement and review Module 5 only. Wait for my approval before proceeding to next 7 — Integration and Full-System Testing.
 
 
 PTMAE — Integration & Full-System Testing
 
-**Role:** Act as a senior Python developer and integration engineer mentoring a BSc IT Semester 3 student.
+Role:Act as a senior Python developer and integration engineer mentoring a BSc IT Semester 3 student.
 
-**Context:** Use the uploaded SRS, approved project blueprint, and completed Modules 1–5 in this conversation, including their interface checkpoints and any corrections made during testing.
+Context: Use the uploaded SRS, approved project blueprint, and completed Modules 1–5 in this conversation, including their interface checkpoints and any corrections made during testing.
 
-**Objective:** Integrate the five modules into one reliable, runnable `main.py` and verify the complete PTMAE application against the SRS.
+Objective:inetegrate the five modules into one reliable, runnable `main.py` and verify the complete PTMAE application against the SRS.
 
-**Tasks:**
+Tasks:
 
-1. **Review before integrating:** Check all five modules, function signatures, class definitions, exception hierarchies, data formats, and dependencies. Identify duplicate definitions, incompatible interfaces, missing requirements, and conflicting assumptions.
-2. **Integrate:** Produce one complete `main.py` containing all five clearly labelled modules, shared definitions in appropriate locations, and a clear program entry point. Preserve approved behavior and avoid unnecessary rewrites.
-3. **Connect supporting files:** Specify the exact required format and purpose of `accounts.db`, `ledger.txt`, and `corrupted.log`. Ensure paths and file operations work when the project is run from its project folder. Do not create unnecessary supporting files or violate the SRS's file restrictions.
-4. **Validate end-to-end behavior:** Check interactive loops, manual parsing, closures, lambda binding, reverse indexing, in-place queue mutation, custom exceptions, file updates, audit logging, account inheritance, settlement rules, and batch error isolation.
-5. **Test systematically:** Provide a test plan covering normal cases, invalid input, boundary conditions, malformed records, file updates of different lengths, missing files, and failures that must not interrupt unrelated processing.
-6. **Verify compliance:** Compare the integrated implementation against the SRS requirements traceability table and technical restrictions checklist. Correct integration defects without silently relaxing requirements.
-7. **Explain execution:** Give exact VS Code terminal commands and step-by-step instructions for preparing test data, running the program, and inspecting the results.
+1. Review before integrating: Check all five modules, function signatures, class definitions, exception hierarchies, data formats, and dependencies. Identify duplicate definitions, incompatible interfaces, missing requirements, and conflicting assumptions.
+2. Integrate: Produce one complete `main.py` containing all five clearly labelled modules, shared definitions in appropriate locations, and a clear program entry point. Preserve approved behavior and avoid unnecessary rewrites.
+3. Connect supporting files: Specify the exact required format and purpose of `accounts.db`, `ledger.txt`, and `corrupted.log`. Ensure paths and file operations work when the project is run from its project folder. Do not create unnecessary supporting files or violate the SRS's file restrictions.
+4. Validate end-to-end behavior: Check interactive loops, manual parsing, closures, lambda binding, reverse indexing, in-place queue mutation, custom exceptions, file updates, audit logging, account inheritance, settlement rules, and batch error isolation.
+5. Test systematically: Provide a test plan covering normal cases, invalid input, boundary conditions, malformed records, file updates of different lengths, missing files, and failures that must not interrupt unrelated processing.
+6. Verify compliance: Compare the integrated implementation against the SRS requirements traceability table and technical restrictions checklist. Correct integration defects without silently relaxing requirements.
+7. Explain execution: Give exact VS Code terminal commands and step-by-step instructions for preparing test data, running the program, and inspecting the results.
 
-**Constraints:**
+Constraints:
 - The SRS is authoritative. Preserve all mandatory requirements and restrictions.
 - Keep all five Python modules in the single required `main.py`.
 - Reuse the completed module code and shared exception definitions wherever possible.
@@ -212,7 +212,7 @@ PTMAE — Integration & Full-System Testing
 - Flag unresolved SRS ambiguities or integration conflicts rather than hiding them.
 - Do not create `Documentation.md` yet.
 
-**Deliverables:**
+Deliverables:
 1. Integration review and list of corrections needed.
 2. Complete final `main.py` code, not fragments or placeholders.
 3. Supporting-file setup instructions and sample test data.
@@ -220,7 +220,7 @@ PTMAE — Integration & Full-System Testing
 5. A requirements compliance checklist identifying any remaining gaps.
 6. A final integration checkpoint stating what has been implemented, tested, and still needs verification.
 
-**Stopping condition:** Complete the integration and testing stage, then stop. Do not generate `Documentation.md` until I explicitly provide next instruction.
+Stopping condition: Complete the integration and testing stage, then stop. Do not generate `Documentation.md` until I explicitly provide next instruction.
 
 
 
@@ -235,9 +235,9 @@ PTMAE — Integration & Full-System Testing
 
 
 
-# PTMAE — Final Project Documentation Generator
+PTMAE — Final Project Documentation Generator
 
-**Role:** Act as a senior Python developer, software documentation engineer, and BSc IT Semester 3 project mentor.
+Role:Act as a senior Python developer, software documentation engineer, and BSc IT Semester 3 project mentor.
 
 ## Context
 I am developing PTMAE (Pure Python Transactional Micro-Banking & Audit Engine) for my Python Programming course.
@@ -251,7 +251,7 @@ Use the following uploaded materials as the authoritative sources:
 ## Objective
 Create a complete, professional, technically accurate `Documentation.md` for my PTMAE project that is suitable for college submission and viva preparation.
 
-**Important:** Read the actual `main.py` carefully before writing. Documentation must describe the implementation that exists in the code, not an imagined or ideal implementation. Identify incomplete requirements and limitations honestly. Do not claim that a feature or test passed unless there is evidence.
+Important: Read the actual `main.py` carefully before writing. Documentation must describe the implementation that exists in the code, not an imagined or ideal implementation. Identify incomplete requirements and limitations honestly. Do not claim that a feature or test passed unless there is evidence.
 
 ## Required Documentation Structure
 
@@ -290,26 +290,26 @@ For each module, explain:
 
 Cover:
 
-**Module 1 — State Control Engine and Trajectory Guards**
+Module 1 — State Control Engine and Trajectory Guards
 - Nested `while` loops and interactive CLI.
 - Compound-interest and penalty calculations.
 - Arithmetic-only financial formulas.
 - Trajectory guards and short-circuit evaluation.
 
-**Module 2 — Native Log Parser and Closure Mechanics**
+Module 2 — Native Log Parser and Closure Mechanics
 - Manual index-based parsing.
 - Delimiters inside quoted fields.
 - Escaped double quotes and empty fields.
 - `nonlocal` audit counters and independent closures.
 - Lambda functions and `k=k` late-binding prevention.
 
-**Module 3 — Data Inversion and In-Place Processing**
+Module 3 — Data Inversion and In-Place Processing
 - Nested dictionary/list/set comprehension for reverse indexing.
 - Alphabetical ordering and duplicate removal.
 - Heterogeneous transaction queue cleanup.
 - In-place mutation and object identity.
 
-**Module 4 — Transactional File Modifier and Error Logger**
+Module 4 — Transactional File Modifier and Error Logger
 - Account-record validation.
 - In-place file modification and `seek()`, `tell()`, `truncate()` or equivalent operations actually used.
 - Bounded-chunk tail shifting if implemented.
@@ -317,7 +317,7 @@ Cover:
 - `try-except-else-finally` behavior.
 - `ledger.txt` and `corrupted.log` logging.
 
-**Module 5 — Object-Oriented Polymorphic Engine**
+Module 5 — Object-Oriented Polymorphic Engine
 - Encapsulation, getters/setters, and name mangling.
 - Inheritance and method overriding.
 - Savings, current, and credit account rules.
