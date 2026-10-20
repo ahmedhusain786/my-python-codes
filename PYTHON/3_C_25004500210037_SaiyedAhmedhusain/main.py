@@ -10,7 +10,7 @@ except ImportError:  # The project remains usable without timestamps.
 
 
 def compound_interest(principal, rate_percent, periods):
-    """Return compound interest earned, validating the numeric inputs."""
+    """Return compound interest using repeated arithmetic calculations."""
     if not isinstance(principal, (int, float)) or isinstance(principal, bool):
         raise TypeError("Principal must be numeric.")
     if not isinstance(rate_percent, (int, float)) or isinstance(rate_percent, bool):
@@ -19,8 +19,18 @@ def compound_interest(principal, rate_percent, periods):
         raise TypeError("Periods must be an integer.")
     if principal < 0 or rate_percent < 0 or periods < 0:
         raise ValueError("Principal, rate, and periods cannot be negative.")
-    final_amount = principal * (1 + rate_percent / 100) ** periods
-    return final_amount - principal
+    if principal != principal or rate_percent != rate_percent:
+        raise ValueError("Principal and rate must be finite numbers.")
+    if principal == float("inf") or rate_percent == float("inf"):
+        raise ValueError("Principal and rate must be finite numbers.")
+    amount = principal
+    period = 0
+    while period < periods:
+        amount = amount + amount * rate_percent / 100
+        period += 1
+        if amount != amount or amount == float("inf"):
+            raise ValueError("Calculated amount is outside the supported numeric range.")
+    return amount - principal
 
 
 def calculate_penalty(amount, penalty_rate_percent):
@@ -31,13 +41,30 @@ def calculate_penalty(amount, penalty_rate_percent):
         raise TypeError("Penalty rate must be numeric.")
     if amount < 0 or penalty_rate_percent < 0:
         raise ValueError("Amount and penalty rate cannot be negative.")
-    return amount * penalty_rate_percent / 100
+    if (amount != amount or penalty_rate_percent != penalty_rate_percent or
+            amount == float("inf") or penalty_rate_percent == float("inf")):
+        raise ValueError("Amount and penalty rate must be finite numbers.")
+    result = amount * penalty_rate_percent / 100
+    if result != result or result == float("inf"):
+        raise ValueError("Calculated penalty is outside the supported numeric range.")
+    return result
 
 
 def trajectory_guard(transactions, starting_balance, safety_threshold, terminate_at=None):
     """Apply transactions until the balance is unsafe or a stop index is reached."""
+    for label, value in (("starting balance", starting_balance), ("safety threshold", safety_threshold)):
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            raise TypeError(label + " must be numeric.")
+        if value != value or value == float("inf") or value == -float("inf"):
+            raise ValueError(label + " must be finite.")
+    if terminate_at is not None and (not isinstance(terminate_at, int) or isinstance(terminate_at, bool) or terminate_at < 0):
+        raise ValueError("terminate_at must be a non-negative integer or None.")
     balance = starting_balance
     for index, amount in enumerate(transactions):
+        if not isinstance(amount, (int, float)) or isinstance(amount, bool):
+            raise TypeError("Every transaction must be numeric.")
+        if amount != amount or amount == float("inf") or amount == -float("inf"):
+            raise ValueError("Every transaction must be finite.")
         # Short-circuit evaluation avoids applying a transaction after termination.
         if (terminate_at is not None and index >= terminate_at) or balance < safety_threshold:
             return balance, index, "termination flag" if terminate_at is not None and index >= terminate_at else "safety threshold"
@@ -54,33 +81,40 @@ def show_help():
 
 
 def run_cli():
-    """Run a nested-loop command line interface until explicit exit or EOF."""
+    """Run a nested-loop CLI until the operator enters the explicit exit command."""
     print("\nPTMAE interactive CLI. Type 'help' for commands; 'exit' to quit.")
-    while True:
-        try:
-            command = input("ptmae> ").strip()
-        except EOFError:
-            print("\nInput ended; CLI closed.")
+    running = True
+    while running:
+        # The outer loop controls the session; the inner loop reads and handles one command.
+        while True:
+            try:
+                command = input("ptmae> ").strip()
+            except EOFError:
+                print("\nInput ended; CLI closed.")
+                running = False
+                break
+            if command == "exit":
+                print("Goodbye.")
+                running = False
+                break
+            if command == "help":
+                show_help()
+                break
+            if not command:
+                print("Empty command. Type 'help'.")
+                break
+            words = command.split()  # CLI tokenization; the manual log parser does not use split().
+            try:
+                if words[0] == "interest" and len(words) == 4:
+                    result = compound_interest(float(words[1]), float(words[2]), int(words[3]))
+                    print("Interest earned:", round(result, 2))
+                elif words[0] == "penalty" and len(words) == 3:
+                    print("Penalty:", round(calculate_penalty(float(words[1]), float(words[2])), 2))
+                else:
+                    print("Invalid command or arguments. Type 'help'.")
+            except (TypeError, ValueError, OverflowError) as error:
+                print("Input error:", error)
             break
-        if command == "exit":
-            print("Goodbye.")
-            break
-        if command == "help":
-            show_help()
-            continue
-        if not command:
-            print("Empty command. Type 'help'.")
-            continue
-        words = command.split()  # CLI tokenization; the manual log parser does not use split().
-        try:
-            if words[0] == "interest" and len(words) == 4:
-                print("Interest earned:", round(compound_interest(float(words[1]), float(words[2]), int(words[3])), 2))
-            elif words[0] == "penalty" and len(words) == 3:
-                print("Penalty:", round(calculate_penalty(float(words[1]), float(words[2])), 2))
-            else:
-                print("Invalid command or arguments. Type 'help'.")
-        except (TypeError, ValueError) as error:
-            print("Input error:", error)
 
 
 # ---------------------------------------------------------------------------
@@ -89,42 +123,59 @@ def run_cli():
 
 
 def parse_raw_log_line(line, delimiter=",", quote_char='"'):
-    """Manually parse a delimited line, supporting quoted delimiters and doubled quotes."""
+    """Parse one delimited record manually, including quoted delimiters and doubled quotes."""
     if not isinstance(line, str):
         raise TypeError("Log line must be a string.")
     if not isinstance(delimiter, str) or len(delimiter) != 1:
         raise ValueError("Delimiter must be exactly one character.")
     if not isinstance(quote_char, str) or len(quote_char) != 1:
         raise ValueError("Quote character must be exactly one character.")
+    if delimiter == quote_char:
+        raise ValueError("Delimiter and quote character must be different.")
+
     fields = []
     field_chars = []
     in_quotes = False
-    field_was_quoted = False
+    quoted_field = False
+    quote_closed = False
     index = 0
     while index < len(line):
         char = line[index]
-        if char == quote_char:
-            if in_quotes:
+        if in_quotes:
+            if char == quote_char:
                 if index + 1 < len(line) and line[index + 1] == quote_char:
                     field_chars.append(quote_char)
                     index += 2
                     continue
                 in_quotes = False
-            elif not field_chars:
-                in_quotes = True
-                field_was_quoted = True
+                quote_closed = True
             else:
-                raise ValueError("Unexpected quote inside an unquoted field.")
-        elif char == delimiter and not in_quotes:
-            fields.append("".join(field_chars))
+                field_chars.append(char)
+        elif char == delimiter:
+            value = "".join(field_chars)
+            fields.append(value if quoted_field else value.strip())
             field_chars = []
-            field_was_quoted = False
+            quoted_field = False
+            quote_closed = False
+        elif char == quote_char:
+            if field_chars and not "".join(field_chars).isspace():
+                raise ValueError("Unexpected quote inside an unquoted field.")
+            if quote_closed:
+                raise ValueError("Unexpected quote after a closing quote.")
+            field_chars = []
+            in_quotes = True
+            quoted_field = True
+        elif quote_closed:
+            if not char.isspace():
+                raise ValueError("Unexpected characters after a closing quote.")
         else:
             field_chars.append(char)
         index += 1
+
     if in_quotes:
         raise ValueError("Malformed log record: unterminated quoted field.")
-    fields.append("".join(field_chars))
+    value = "".join(field_chars)
+    fields.append(value if quoted_field else value.strip())
     return fields
 
 
@@ -160,14 +211,20 @@ def build_positional_filters():
 
 
 def build_reverse_index(branch_records):
-    """Build a service-tag index of unique (account_id, branch_id) pairs."""
+    """Build a sorted index of unique (account_id, branch_id) pairs per service tag."""
     reverse_index = {
-        tag: sorted({(account_id, branch_id)
-                     for branch_id, records in branch_records.items()
-                     for account_id, service_tags in records
-                     for tag in service_tags})
-        for tag in {tag for records in branch_records.values()
-                    for account_id, service_tags in records for tag in service_tags}
+        tag: sorted({
+            (account_id, branch_id)
+            for branch_id, records in branch_records.items()
+            for account_id, service_tags in records
+            if tag in service_tags
+        })
+        for tag in {
+            service_tag
+            for records in branch_records.values()
+            for account_id, service_tags in records
+            for service_tag in service_tags
+        }
     }
     return reverse_index
 
@@ -236,18 +293,22 @@ class InsufficientBalanceError(BaseSystemError):
 
 def validate_account_record(record):
     """Validate one account record and return (account_id, account_type, balance)."""
+    if not isinstance(record, str):
+        raise CorruptedRecordError("record must be text")
     fields = parse_raw_log_line(record.rstrip("\r\n"))
     if len(fields) != 3:
         raise CorruptedRecordError("expected exactly 3 comma-separated fields")
     account_id, account_type, balance_text = fields
-    if not account_id or not account_id.isalnum():
-        raise CorruptedRecordError("account ID must be non-empty and alphanumeric")
+    if not account_id or not account_id.isascii() or not account_id.isalnum():
+        raise CorruptedRecordError("account ID must be non-empty ASCII alphanumeric text")
     if account_type not in ("SAVINGS", "CURRENT", "CREDIT"):
         raise CorruptedRecordError("unknown account type")
     try:
         balance = float(balance_text)
-    except ValueError:
+    except (TypeError, ValueError):
         raise CorruptedRecordError("balance is not numeric")
+    if balance != balance or balance == float("inf") or balance == -float("inf"):
+        raise CorruptedRecordError("balance must be finite")
     if balance < 0 and account_type != "CURRENT":
         raise CorruptedRecordError("negative balance is only valid for CURRENT accounts")
     return account_id, account_type, balance
@@ -266,33 +327,43 @@ def append_log(path, message):
         handle.write(message + "\n")
 
 
-def _line_bounds(binary_file, line_number):
-    """Return byte offsets (start, end) for a one-based line number, or None."""
+def _line_bounds(text_file, line_number):
+    """Return one-based line offsets using a one-byte-per-character text mapping."""
     if line_number < 1:
         return None
-    binary_file.seek(0)
+    text_file.seek(0)
     current_line = 1
     start = 0
     while True:
-        chunk = binary_file.read(1)
-        if not chunk:
-            if current_line == line_number:
-                return start, binary_file.tell()
+        char = text_file.read(1)
+        if char == "":
+            if current_line == line_number and start < text_file.tell():
+                return start, text_file.tell()
             return None
-        if chunk == b"\n":
+        if char == "\n":
             if current_line == line_number:
-                return start, binary_file.tell()
+                return start, text_file.tell()
             current_line += 1
-            start = binary_file.tell()
+            start = text_file.tell()
 
 
 def replace_line_in_place(path, line_number, replacement):
-    """Replace one line with byte-accurate bounded tail shifting in binary mode."""
-    if not isinstance(replacement, bytes):
-        raise TypeError("Replacement must be bytes.")
-    if not replacement.endswith(b"\n"):
-        replacement += b"\n"
-    with open(path, "r+b") as handle:
+    """Replace a line in r+ mode, shifting the tail in bounded chunks.
+
+    Latin-1 and newline='' are used internally so every stored byte maps to
+    exactly one character and CR/LF bytes are not translated. Account records
+    are restricted to ASCII, while unrelated/corrupt bytes remain preserved.
+    """
+    if isinstance(replacement, bytes):
+        replacement_text = replacement.decode("latin-1")
+    elif isinstance(replacement, str):
+        replacement_text = replacement
+    else:
+        raise TypeError("Replacement must be text or bytes.")
+    if not replacement_text.endswith("\n"):
+        replacement_text += "\n"
+
+    with open(path, "r+", encoding="latin-1", newline="") as handle:
         bounds = _line_bounds(handle, line_number)
         if bounds is None:
             raise OutOfBoundsError("line number does not exist")
@@ -302,10 +373,10 @@ def replace_line_in_place(path, line_number, replacement):
         file_size = handle.tell()
         tail_start = end
         tail_length = file_size - tail_start
-        new_length = len(replacement)
+        new_length = len(replacement_text)
         delta = new_length - old_length
+
         if delta > 0:
-            # Shift the tail backwards in bounded chunks to avoid overwriting unread bytes.
             position = tail_length
             while position > 0:
                 amount = 4096 if position > 4096 else position
@@ -316,17 +387,19 @@ def replace_line_in_place(path, line_number, replacement):
                 handle.write(chunk)
                 position -= amount
         elif delta < 0:
-            # Shift the tail forwards in bounded chunks when the replacement shrinks.
             position = 0
             while position < tail_length:
                 amount = 4096 if tail_length - position > 4096 else tail_length - position
                 handle.seek(tail_start + position)
                 chunk = handle.read(amount)
+                if not chunk:
+                    break
                 handle.seek(tail_start + position + delta)
                 handle.write(chunk)
-                position += amount
+                position += len(chunk)
+
         handle.seek(start)
-        handle.write(replacement)
+        handle.write(replacement_text)
         handle.truncate(file_size + delta)
 
 
@@ -345,7 +418,8 @@ def update_account_file(path, updates, corrupted_path="corrupted.log", ledger_pa
                 if not isinstance(update, (tuple, list)) or len(update) != 3:
                     raise CorruptedRecordError("update must be (account_id, account_type, new_balance)")
                 account_id, account_type, new_balance = update
-                if not isinstance(account_id, str) or not account_id or not account_id.isalnum():
+                if (not isinstance(account_id, str) or not account_id or
+                        not account_id.isascii() or not account_id.isalnum()):
                     raise CorruptedRecordError("invalid account ID")
                 if account_type not in ("SAVINGS", "CURRENT", "CREDIT"):
                     raise CorruptedRecordError("unknown account type")
@@ -353,6 +427,9 @@ def update_account_file(path, updates, corrupted_path="corrupted.log", ledger_pa
                     balance = float(new_balance)
                 except (TypeError, ValueError):
                     raise CorruptedRecordError("new balance is not numeric")
+                if (balance != balance or balance == float("inf") or
+                        balance == -float("inf")):
+                    raise CorruptedRecordError("new balance must be finite")
                 if balance < 0 and account_type != "CURRENT":
                     raise CorruptedRecordError("negative balance is only valid for CURRENT accounts")
                 found_line = None
@@ -373,7 +450,7 @@ def update_account_file(path, updates, corrupted_path="corrupted.log", ledger_pa
                             break
                 if found_line is None:
                     raise CorruptedRecordError("account ID not found in database")
-                replacement = (account_id + "," + account_type + "," + format(balance, ".2f") + "\n").encode("utf-8")
+                replacement = account_id + "," + account_type + "," + format(balance, ".2f") + "\n"
                 replace_line_in_place(path, found_line, replacement)
             except (BaseSystemError, TypeError, ValueError, OSError) as error:
                 rejected += 1
@@ -413,6 +490,8 @@ class Account:
         """Set a finite numeric balance; base accounts cannot be negative."""
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             raise TypeError("Balance must be numeric.")
+        if value != value or value == float("inf") or value == -float("inf"):
+            raise OutOfBoundsError("Balance must be finite.")
         if value < 0:
             raise OutOfBoundsError("Base balance cannot be negative.")
         self.__balance = float(value)
@@ -434,6 +513,8 @@ class Account:
         """Validate a strictly positive numeric transaction amount."""
         if not isinstance(amount, (int, float)) or isinstance(amount, bool):
             raise TypeError("Transaction amount must be numeric.")
+        if amount != amount or amount == float("inf") or amount == -float("inf"):
+            raise OutOfBoundsError("Transaction amount must be finite.")
         if amount <= 0:
             raise OutOfBoundsError("Transaction amount must be positive.")
         return float(amount)
@@ -459,11 +540,13 @@ class CurrentAccount(Account):
     """Current account with a private overdraft limit and signed balance."""
 
     def __init__(self, account_id, balance, overdraft_limit=5000):
-        """Initialize current account and its validated overdraft limit."""
-        super().__init__(account_id, balance)
-        if not isinstance(overdraft_limit, (int, float)) or isinstance(overdraft_limit, bool) or overdraft_limit < 0:
-            raise OutOfBoundsError("Overdraft limit must be non-negative and numeric.")
+        """Initialize a current account with a private, validated overdraft limit."""
+        if (not isinstance(overdraft_limit, (int, float)) or isinstance(overdraft_limit, bool) or
+                overdraft_limit < 0 or overdraft_limit != overdraft_limit or
+                overdraft_limit == float("inf")):
+            raise OutOfBoundsError("Overdraft limit must be finite, numeric, and non-negative.")
         self.__overdraft_limit = float(overdraft_limit)
+        super().__init__(account_id, balance)
 
     @property
     def balance(self):
@@ -472,17 +555,21 @@ class CurrentAccount(Account):
 
     @balance.setter
     def balance(self, value):
-        """Initialize or set a non-negative current account balance."""
+        """Set the signed balance without exceeding this account's overdraft limit."""
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             raise TypeError("Balance must be numeric.")
-        if value < 0:
-            raise OutOfBoundsError("Starting balance cannot be negative.")
+        if value != value or value == float("inf") or value == -float("inf"):
+            raise OutOfBoundsError("Balance must be finite.")
+        if value < -self.__overdraft_limit:
+            raise OutOfBoundsError("Balance exceeds the current account overdraft limit.")
         self.__current_balance = float(value)
 
     def process_settlement(self, amount):
         """Debit while ensuring balance does not pass the negative overdraft limit."""
         amount = self._validate_amount(amount)
         new_balance = self.balance - amount
+        if new_balance != new_balance or new_balance == -float("inf") or new_balance == float("inf"):
+            raise OutOfBoundsError("Calculated current balance is outside the supported range.")
         if new_balance < -self.__overdraft_limit:
             raise InsufficientBalanceError("Current account overdraft limit exceeded.")
         # This subclass owns a separate signed-balance field so the base class's
@@ -495,17 +582,22 @@ class CreditAccount(Account):
     """Credit account where balance means outstanding debt, limited by credit_limit."""
 
     def __init__(self, account_id, balance, credit_limit=10000):
-        """Initialize credit account with outstanding debt and a credit limit."""
-        super().__init__(account_id, balance)
-        if not isinstance(credit_limit, (int, float)) or isinstance(credit_limit, bool) or credit_limit < 0:
-            raise OutOfBoundsError("Credit limit must be non-negative and numeric.")
+        """Initialize credit account with outstanding debt and a validated credit limit."""
+        if (not isinstance(credit_limit, (int, float)) or isinstance(credit_limit, bool) or
+                credit_limit < 0 or credit_limit != credit_limit or
+                credit_limit == float("inf")):
+            raise OutOfBoundsError("Credit limit must be finite, numeric, and non-negative.")
         self.__credit_limit = float(credit_limit)
+        super().__init__(account_id, balance)
 
     def process_settlement(self, amount):
         """Add a 2.5 percent surcharge and reject debt above the credit limit."""
         amount = self._validate_amount(amount)
         charged_amount = amount + amount * 2.5 / 100
         new_balance = self.balance + charged_amount
+        if (charged_amount != charged_amount or new_balance != new_balance or
+                charged_amount == float("inf") or new_balance == float("inf")):
+            raise OutOfBoundsError("Calculated credit charge is outside the supported range.")
         if new_balance > self.__credit_limit:
             raise InsufficientBalanceError("Credit limit exceeded.")
         self.balance = new_balance
@@ -592,6 +684,11 @@ def run_demonstrations():
         raise CorruptedRecordError("sample base-catch check")
     except BaseSystemError as error:
         print("Caught through base class:", error)
+    try:
+        print("Valid record check:", validate_account_record("Acc900, SAVINGS, 1500.00"))
+        validate_account_record("Broken, UNKNOWN, not-a-number")
+    except CorruptedRecordError as error:
+        print("Invalid database record correctly rejected:", error)
 
     demo_db = "ptmae_demo_accounts.db"
     demo_corrupt = "ptmae_demo_corrupted.log"
